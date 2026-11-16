@@ -76,3 +76,5 @@ Run `node demos/kiro-incident.js --sample` to invoke the authenticated **Kiro CL
 ### Two real Kiro agents: diagnosis + independent safety review
 
 Run `node demos/kiro-crew.js --sample` with a signed-in Kiro CLI. The first real model call diagnoses a **synthetic** Kubernetes incident. A second real model call independently challenges the first answer and highlights unsafe remediations. Both model calls are audited separately with SHA-256 input/output hashes in the same run. The reviewer is a separate model invocation, **not** an independent security boundary; it does not approve or execute anything. No cluster or shell tools are invoked. The existing three-agent dashboard remains scripted.
+
+Mission Control (`npm run dashboard`) can now inspect **previously completed real Kiro runs** from the same SQLite database using the history dropdown. Select `Kiro Two-Agent Incident Review` to see the actual investigator/reviewer output and audit timeline. The dashboard's Run button **still launches only the scripted mock crew**; it cannot trigger model calls or execute cluster actions.
