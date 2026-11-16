@@ -1,0 +1,11 @@
+# Priority-ordered implementation checklist
+- [x] Identify source-of-truth repositories and separate existing product from hackathon layer.
+- [x] Write full Aivaro + Kiro acceptance criteria and architectural target.
+- [ ] P0: inspect actual Aivaro MCP protocol, Trust server, Android signed decision wire format, sandbox; record precise endpoint names and tests.
+- [ ] P1: implement read-only versioned Aivaro MCP adapter and integration tests, no stub fallback on explicit live mode.
+- [ ] P1: structured Kiro typed proposals, prompt injection defenses, bounded context and dual-agent review.
+- [ ] P2: bridge real Aivaro Trust decision to existing Android app; enforce device identity, TTL, nonce and freeze.
+- [ ] P3: constrained, reversible sandboxed mutation with independent approval; cross-platform fail-closed.
+- [ ] P4: Mission Control real pending decisions and receipts; showcase and competition video.
+- [x] P0: run real adapter discovery, inspect Trust/Android wire protocol, document capability matrix and P-256 vs Ed25519 mismatch.
+- [x] P0: add executable read-only capability inventory and regression tests.

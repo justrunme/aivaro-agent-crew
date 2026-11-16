@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {assessAivaroInventory} from '../src/aivaro_inventory.js';
+test('terminal-only MCP cannot be advertised as browser/phone integration',()=>{const r=assessAivaroInventory({status:'connected-read-only',tools:['terminal_create','terminal_send','terminal_read','terminal_interrupt','terminal_close'].map(name=>({name}))});assert.equal(r.terminal_mcp,true);assert.equal(r.browser_mcp,false);assert.equal(r.phone_approval_verified,false);assert.equal(r.trust_execution_verified,false)});
+test('missing adapter fails closed',()=>{const r=assessAivaroInventory({status:'unavailable',tools:[]});assert.equal(r.terminal_mcp,false);assert.equal(r.status,'unavailable')});
+test('partial terminal cannot claim terminal MCP complete',()=>assert.equal(assessAivaroInventory({status:'connected-read-only',tools:[{name:'terminal_create'}]}).terminal_mcp,false));
