@@ -81,3 +81,13 @@ export function getRunEvents(db, run_id) {
 }
 
 export { DEFAULT_DB_PATH };
+
+/** List recent completed or active runs from the audit, without changing records. */
+export function listRuns(db, limit = 20) {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error('Invalid run limit');
+  return db.prepare(`SELECT e.run_id, e.occurred_at, json_extract(e.payload, '$.crew_name') AS crew_name,
+    (SELECT count(*) FROM events a WHERE a.run_id=e.run_id AND a.event_type='action_approved') AS approved,
+    (SELECT count(*) FROM events a WHERE a.run_id=e.run_id AND a.event_type='action_rejected') AS rejected,
+    (SELECT count(*) FROM events a WHERE a.run_id=e.run_id) AS event_count
+    FROM events e WHERE e.event_type='run_start' ORDER BY e.rowid DESC LIMIT ?`).all(limit);
+}
