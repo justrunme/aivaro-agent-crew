@@ -5,8 +5,8 @@
  * and reject any path that would escape it (path traversal protection).
  */
 
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { resolve, relative, dirname } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync, realpathSync } from 'node:fs';
+import { resolve, relative, dirname, sep as requireSeparator, isAbsolute } from 'node:path';
 
 function sandboxedPath(inputPath) {
   const cwd = process.cwd();
@@ -26,7 +26,13 @@ function sandboxedPath(inputPath) {
 export async function readFileTool({ path }) {
   if (!path) throw new Error('read_file: "path" is required');
   const safe = sandboxedPath(path);
-  const content = readFileSync(safe, 'utf8');
+  // Resolve symlinks before reading. This blocks ordinary symlink escapes; it is
+  // not a race-free OS sandbox against a concurrently hostile filesystem.
+  const actual = realpathSync(safe);
+  const base = realpathSync(process.cwd());
+  const rel = relative(base, actual);
+  if (rel === '..' || rel.startsWith(`..${requireSeparator}`) || isAbsolute(rel)) throw new Error('read_file: symlink escapes workspace');
+  const content = readFileSync(actual, 'utf8');
   return { content };
 }
 
