@@ -63,3 +63,7 @@ See [Kiro usage and credit policy](docs/KIRO_USAGE.md). Kiro CLI model execution
 ### Standalone audit history
 
 Mission Control now lists previous demo runs from its local SQLite database and allows selecting a run to inspect its persisted action timeline. `GET /api/runs` returns the most recent run summaries; `GET /api/run/:id` returns events for a known run. These endpoints are loopback-only and **not** a remote authentication interface. Set `AIVARO_CREW_DB_PATH` to choose an isolated local audit database. GitHub Actions runs Node 24 tests, CLI dry-run and mock demo.
+
+### Interactive signed read (local demonstration)
+
+Run `node demos/signed-read.js README.md` in a real terminal. Review the exact file and SHA-256 hash, then type **YES** to issue an ephemeral Ed25519 capability and perform a real, read-only action. Anything else denies. This does **not** use Android, persistent key enrollment, or a production sandbox. The demo key is created locally for each invocation, and filesystem symlink checks are not race-free. Never run against an untrusted writable workspace.
