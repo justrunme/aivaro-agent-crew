@@ -1,0 +1,13 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {generateDemoSigner,issueCapability,verifyCapability} from '../src/security/capabilities.js';
+import {hashPayload} from '../src/gateway.js';
+const proposal=()=>({run_id:'r1',agent_id:'researcher',action_type:'terminal_read',payload:{session_id:'s1'},payload_hash:hashPayload({session_id:'s1'})});
+const make=()=>{const pair=generateDemoSigner();const p=proposal();const cap=issueCapability(p,pair.privateKey,{now:1000,ttlMs:10000});const seen=new Set();const opts={now:2000,consumeNonce:n=>{if(seen.has(n))return false;seen.add(n);return true}};return {pair,p,cap,opts}};
+test('valid signed capability passes once only',()=>{const {pair,p,cap,opts}=make();assert.equal(verifyCapability(p,cap,pair.publicKey,opts).ok,true);assert.equal(verifyCapability(p,cap,pair.publicKey,opts).reason,'replayed')});
+test('fail closed when no replay store is supplied',()=>{const {pair,p,cap}=make();assert.equal(verifyCapability(p,cap,pair.publicKey,{now:2000}).reason,'replay_store_required')});
+test('expired capability is denied',()=>{const {pair,p,cap,opts}=make();assert.equal(verifyCapability(p,cap,pair.publicKey,{...opts,now:11000}).ok,false)});
+test('modified tool, run, agent or payload is denied',()=>{for(const change of [{action_type:'terminal_send'},{run_id:'r2'},{agent_id:'writer'},{payload:{session_id:'s2'}}]){const {pair,p,cap,opts}=make();assert.equal(verifyCapability({...p,...change},cap,pair.publicKey,opts).ok,false)}});
+test('tampered signature or claims denied',()=>{const {pair,p,cap,opts}=make();assert.equal(verifyCapability(p,{...cap,signature:'invalid'},pair.publicKey,opts).ok,false);assert.equal(verifyCapability(p,{...cap,claims:{...cap.claims,issuer:'attacker'}},pair.publicKey,opts).ok,false)});
+test('untrusted public key denied',()=>{const {p,cap,opts}=make();assert.equal(verifyCapability(p,cap,generateDemoSigner().publicKey,opts).ok,false)});
+test('invalid proposal payload hash denied',()=>{const {pair,p,cap,opts}=make();assert.equal(verifyCapability({...p,payload:{session_id:'other'}},cap,pair.publicKey,opts).ok,false)});

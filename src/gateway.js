@@ -70,6 +70,10 @@ function sortedKeys(value) {
  */
 export async function requestApproval(proposal, approvalConfig, db, clock, opts = {}) {
   const { mode, safe_actions } = approvalConfig;
+  // Never trust a hash supplied by an agent without recomputing it.
+  if (hashPayload(proposal.payload) !== proposal.payload_hash) {
+    throw new Error('Proposal hash mismatch: approval denied');
+  }
 
   // Auto-approve-safe path: approve immediately if action_type is in safe_actions
   if (mode === 'auto-approve-safe' && safe_actions.includes(proposal.action_type)) {
@@ -98,7 +102,8 @@ export async function requestApproval(proposal, approvalConfig, db, clock, opts 
       action_type: proposal.action_type,
       payload: proposal.payload,
     });
-    if (result.status === 'approved') {
+    // An unverified MCP status string is NOT an authorization proof.
+    if (result.status === 'approved' && result.verified === true && result.proposal_hash === proposal.payload_hash) {
       const record = makeApprovalRecord({
         proposal_hash: proposal.payload_hash,
         approved_by: `mcp:${result.token ?? 'unknown'}`,
