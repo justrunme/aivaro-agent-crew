@@ -1,0 +1,11 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {randomUUID} from 'node:crypto';
+import {initDb,getRunEvents} from '../src/audit.js';
+import {makeReadProposal,performSignedRead} from '../demos/signed-read.js';
+const db=()=>initDb(join(tmpdir(),`crew-local-demo-${randomUUID()}.db`));
+test('local demo denies without explicit confirmation',async()=>{const d=db(),p=makeReadProposal('README.md');const r=await performSignedRead(p,{confirmed:false,db:d});assert.equal(r.reason,'human_denied');assert.equal(getRunEvents(d,p.run_id)[0].event_type,'action_rejected');d.close()});
+test('explicit local confirmation signs and reads actual workspace file',async()=>{const d=db(),p=makeReadProposal('README.md');const r=await performSignedRead(p,{confirmed:true,db:d});assert.match(r.content,/Agent Crew/);assert.ok(getRunEvents(d,p.run_id).some(e=>e.event_type==='action_executed'));d.close()});
+test('local demo rejects traversal outside workspace',()=>assert.throws(()=>makeReadProposal('../outside'),/inside current workspace/));
