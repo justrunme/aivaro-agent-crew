@@ -13,3 +13,5 @@
 - Do not use open-ended autonomous prompts that repeatedly read the entire repository.
 - Use bounded runs with explicit files, acceptance criteria and timeouts; record actual model and result.
 - Do not equate Kiro model selection with implementing a real Kiro Crew app.
+
+- 2026-11-16: Kiro CLI `qwen3-coder-next` read-only review of `README.md` and `demos/signed-read.js`. Proposed resolving symlinks before displaying the local approval prompt. Implemented and tested independently. Other Kiro observations about path traversal and replay were incorrect for the actual code; the replay store already persists consumed nonces. No code authored by this Kiro invocation.

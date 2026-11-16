@@ -3,6 +3,7 @@
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
 import { randomUUID } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import { resolve, relative, isAbsolute, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { initDb, logEvent } from '../src/audit.js';
@@ -14,6 +15,9 @@ export function makeReadProposal(path){
   if(typeof path!=='string'||!path.trim())throw Error('File path required');
   const full=resolve(path), rel=relative(process.cwd(),full);
   if(rel==='..'||rel.startsWith(`..${sep}`)||isAbsolute(rel))throw Error('File must be inside current workspace');
+  const actual=realpathSync(full), base=realpathSync(process.cwd());
+  const physical=relative(base,actual);
+  if(physical==='..'||physical.startsWith(`..${sep}`)||isAbsolute(physical))throw Error('Symlink target escapes current workspace');
   const payload={path:rel};
   return {run_id:randomUUID(),agent_id:'local-human-demo',action_type:'read_file',payload,payload_hash:hashPayload(payload)};
 }
@@ -30,7 +34,7 @@ export async function performSignedRead(proposal,{confirmed=false,db=initDb(),si
 async function main(){
   if(process.argv.length!==3){console.error('Usage: node demos/signed-read.js <workspace-file>');process.exitCode=2;return;}
   const proposal=makeReadProposal(process.argv[2]);
-  console.log(`LOCAL DEMO ONLY — ephemeral key, no Android pairing.\nAction: ${proposal.action_type}\nPath: ${proposal.payload.path}\nPayload SHA-256: ${proposal.payload_hash}`);
+  console.log(`LOCAL DEMO ONLY — ephemeral key, no Android pairing.\nAction: ${proposal.action_type}\nPath: ${proposal.payload.path}\nResolved path: ${realpathSync(resolve(proposal.payload.path))}\nPayload SHA-256: ${proposal.payload_hash}`);
   if(!stdin.isTTY){console.error('Interactive terminal required; denying.');process.exitCode=1;return;}
   const rl=createInterface({input:stdin,output:stdout});
   let response;
