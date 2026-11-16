@@ -16,7 +16,7 @@ A multi-agent dashboard alone is common. The defensible idea is a **human-author
 
 ## Current gaps (do not overclaim)
 
-- Crew agents are scripted, not model-backed.
+- The three-agent crew is scripted; a separate real Kiro-powered single-agent incident triage is implemented and tested.
 - No enrolled Android Keystore identity or device-signed transport yet.
 - No OS-level sandbox; read_file realpath check is subject to filesystem races.
 - No full end-to-end approval/receipt visualization in Mission Control.

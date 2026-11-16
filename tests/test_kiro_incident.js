@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {initDb,getRunEvents} from '../src/audit.js';
+import {triage,incidentPrompt} from '../demos/kiro-incident.js';
+const db=()=>initDb(join(tmpdir(),`crew-kiro-${randomUUID()}.db`));
+test('synthetic incident prompt never authorizes execution',()=>{const p=incidentPrompt({symptom:'OOMKilled'});assert.match(p,/Do NOT call any tools/);assert.match(p,/Synthetic incident JSON/)});
+test('real model adapter output is audited but no tools are executed',async()=>{const d=db();const r=await triage({symptom:'OOMKilled'},{db:d,model:async()=> 'CAUSE: memory pressure'});assert.match(r.recommendation,/memory pressure/);const events=getRunEvents(d,r.run_id);assert.equal(events.filter(e=>e.event_type==='action_executed').length,1);assert.equal(JSON.parse(events.find(e=>e.event_type==='action_executed').payload).action_type,'model_inference_only');d.close()});
+test('model failure records denied outcome and propagates',async()=>{const d=db();await assert.rejects(triage({symptom:'OOMKilled'},{db:d,model:async()=>{throw Error('unavailable')}}),/unavailable/);assert.equal(d.prepare("SELECT count(*) as n FROM events WHERE event_type='action_failed'").get().n,1);d.close()});
+test('incident input size is bounded',async()=>{const d=db();await assert.rejects(triage({x:'a'.repeat(13000)},{db:d,model:async()=>''}),/too large/);d.close()});

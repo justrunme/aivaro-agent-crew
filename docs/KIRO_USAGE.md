@@ -15,3 +15,6 @@
 - Do not equate Kiro model selection with implementing a real Kiro Crew app.
 
 - 2026-11-16: Kiro CLI `qwen3-coder-next` read-only review of `README.md` and `demos/signed-read.js`. Proposed resolving symlinks before displaying the local approval prompt. Implemented and tested independently. Other Kiro observations about path traversal and replay were incorrect for the actual code; the replay store already persists consumed nonces. No code authored by this Kiro invocation.
+
+
+- 2026-11-16: Real model inference: `node demos/kiro-incident.js --sample` spawned authenticated `kiro-cli chat --v2 --model qwen3-coder-next --no-interactive`, with bundled synthetic Kubernetes OOM incident. Completed successfully; generated diagnosis of OOMKilled exit 137, 251Mi/256Mi working set, cache increase, and human-gated remediation. Run ID `7748e0cd-308c-4521-aff0-acb02d05a827` recorded in local SQLite audit. No cluster or shell action executed. Kiro CLI also reviewed design; suggestion to use a nonexistent `kiro run` was rejected after consulting official CLI docs.
