@@ -24,3 +24,7 @@ The adapter connects to the existing local Aivaro service and successfully disco
 `src/security/capabilities.js` supports Ed25519-signed, time-limited, one-time capability claims bound to run, agent, action type and payload digest. `src/security/verified_gateway.js` verifies against a supplied trusted public key and atomically consumes the nonce in SQLite, including across process restarts. Unit tests exercise tampering, expiry, replay and trust failures.
 
 **Critical limitation:** the included `generateDemoSigner()` generates an ephemeral local test key. This is **not** the Android Keystore signing identity or an authenticated phone approval. No device pairing, key registration, attestation, approval-card transport or MCP tool invocation is implemented. Never treat a local demo signature as user consent.
+
+### Live execution gate (November 2026)
+
+`execute()` now rejects live calls unless a trusted Ed25519 capability is supplied and consumed once in SQLite. Only `read_file` is currently allowlisted for live execution; write, network and shell actions are denied regardless of capability. The legacy CLI approval flow remains a mock/demo path and is not a production consent system. `read_file` resolves symlinks before opening; this is **not** race-free OS-level containment. Never run this prototype against an untrusted writable workspace or claim it is a production sandbox. The Android trusted-key enrollment and human consent flow are not yet connected.
