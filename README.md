@@ -2,7 +2,7 @@
 
 **New standalone project started during Kiroween 2026.** Local-first agent workflow prototype with explicit action approval, a SQLite event log, a visual mission-control demo and a separate experimental Ed25519 capability verifier.
 
-> **Pre-alpha / mock-only.** The three agents and their outputs are scripted fixtures, not live AI inference. Approvals in the demo are simulated. Live tool execution is disabled by the CLI; the exported library is not a security sandbox. No Android approval, signed phone receipt or production MCP execution is connected yet.
+> **Pre-alpha / mock crew with a separate opt-in real read demo.** The three agents and their outputs are scripted fixtures, not live AI inference. Approvals in the demo are simulated. Live tool execution is disabled by the crew CLI; the exported library is not a security sandbox. No Android approval, signed phone receipt or production MCP execution is connected yet.
 
 ## Try the working demo
 
@@ -28,13 +28,13 @@ Open **http://127.0.0.1:4317** on the same computer. Select **Run safe demo** to
 | Audit | SQLite append-only application writes; **not tamper-evident** |
 | Mission Control | Local HTML dashboard for simulated runs |
 | Aivaro MCP | Read-only `tools/list` discovery from optional local adapter |
-| Ed25519 capability prototype | Unit-tested signatures, expiry and durable nonce replay guard; **not wired to executor** |
+| Ed25519 capability gate | Unit-tested signatures, expiry and durable nonce replay guard; **wired to allowlisted live read_file only** |
 | Android Agent Approval | Planned external integration, not implemented |
 | Kiro Crew application | Not implemented |
 
 ## Security boundaries
 
-The current mock workflow does not perform real tool I/O. A signed capability prototype is provided in `src/security/`, but signing with its ephemeral test key is **not user consent**. Do not expose the dashboard, run untrusted crew definitions, or enable live tools without an independent security review. See [security review](docs/SECURITY_REVIEW.md).
+The crew mock workflow does not perform real tool I/O. A signed capability gate is wired to a separate local read-only demo, but signing with its ephemeral test key is **not Android user consent**. Do not expose the dashboard, run untrusted crew definitions, or enable live tools without an independent security review. See [security review](docs/SECURITY_REVIEW.md).
 
 ## How Kiro was used
 

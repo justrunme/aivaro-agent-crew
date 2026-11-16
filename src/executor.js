@@ -30,34 +30,25 @@ import { authorizeSignedProposal } from './security/verified_gateway.js';
  * @returns {Promise<Object>} Tool result dict, or error dict on failure
  */
 export async function execute(proposal, approval, db, clock, opts = {}) {
-  // Live execution must carry a signed, one-time capability bound to the exact proposal.
-  // Legacy CLI/auto-safe approvals remain usable for mock demos only.
+  // Validate the legacy approval record before consuming any signed capability.
+  const recomputed = hashPayload(proposal.payload);
+  if (!approval || !approval.approved_at || !approval.approved_by || recomputed !== proposal.payload_hash || recomputed !== approval.proposal_hash) {
+    const err = new HashMismatchError(approval?.proposal_hash, recomputed);
+    logEvent(db, {run_id:proposal.run_id,occurred_at:clock(),event_type:'action_failed',agent_id:proposal.agent_id,payload:{reason:'hash_mismatch',expected:approval?.proposal_hash,actual:recomputed}});
+    return {error:err.message,reason:'hash_mismatch'};
+  }
+  // Live actions require an independently verified, one-time signed capability.
   if (!opts.mock) {
     if (proposal.action_type !== 'read_file') {
       logEvent(db,{run_id:proposal.run_id,occurred_at:clock(),event_type:'action_failed',agent_id:proposal.agent_id,payload:{reason:'live_tool_not_allowlisted'}});
       return {error:'Live tool not allowlisted',reason:'live_tool_not_allowlisted'};
     }
-    const auth = authorizeSignedProposal(proposal, opts.capability, opts.trustedPublicKey, db);
+    const auth = authorizeSignedProposal(proposal,opts.capability,opts.trustedPublicKey,db);
     if (!auth.ok) {
-      logEvent(db, {run_id:proposal.run_id,occurred_at:clock(),event_type:'action_failed',agent_id:proposal.agent_id,payload:{reason:'signed_capability_required',detail:auth.reason}});
+      logEvent(db,{run_id:proposal.run_id,occurred_at:clock(),event_type:'action_failed',agent_id:proposal.agent_id,payload:{reason:'signed_capability_required',detail:auth.reason}});
       return {error:'Signed capability required for live execution',reason:auth.reason};
     }
   }
-  // Re-verify hash before touching any tool (FR-4.2, NFR-1)
-  const recomputed = hashPayload(proposal.payload);
-  if (!approval || !approval.approved_at || !approval.approved_by || recomputed !== proposal.payload_hash || recomputed !== approval.proposal_hash) {
-    const err = new HashMismatchError(approval?.proposal_hash, recomputed);
-    logEvent(db, {
-      run_id: proposal.run_id,
-      occurred_at: clock(),
-      event_type: 'action_failed',
-      agent_id: proposal.agent_id,
-      payload: { reason: 'hash_mismatch', expected: approval.proposal_hash, actual: recomputed },
-    });
-    // Return error dict — orchestrator decides what to do with it
-    return { error: err.message, reason: 'hash_mismatch' };
-  }
-
   try {
     let result;
     if (opts.mock) {
