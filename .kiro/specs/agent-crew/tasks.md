@@ -255,3 +255,11 @@ Effort: 0.5 · Needs: T-17
 | Dashboard done (mock) | ✅ done | T-15 |
 | Tests passing | 🔲 pending verification | T-16 |
 | Submission ready | 🔲 pending | T-17, T-18 |
+
+## 2026-11-16 Kiro model-backed extension
+- [x] Single genuine Kiro model incident diagnosis (synthetic, read-only).
+- [x] Two genuine sequential Kiro model calls: triage and skeptical reviewer, with separate audit hashes.
+- [x] Integration tests for handoff, failure, input bounds, and audit.
+- [ ] Integrate the genuine model-backed crew with Mission Control UI.
+- [ ] Human-signed approval transport from an enrolled external identity.
+- [ ] Independent sandbox security review before live cluster mutations.
