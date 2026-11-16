@@ -18,3 +18,5 @@
 
 
 - 2026-11-16: Real model inference: `node demos/kiro-incident.js --sample` spawned authenticated `kiro-cli chat --v2 --model qwen3-coder-next --no-interactive`, with bundled synthetic Kubernetes OOM incident. Completed successfully; generated diagnosis of OOMKilled exit 137, 251Mi/256Mi working set, cache increase, and human-gated remediation. Run ID `7748e0cd-308c-4521-aff0-acb02d05a827` recorded in local SQLite audit. No cluster or shell action executed. Kiro CLI also reviewed design; suggestion to use a nonexistent `kiro run` was rejected after consulting official CLI docs.
+
+- 2026-11-16: Kiro CLI read-only architecture review proposed two genuine model invocations (triage and adversarial SRE reviewer), each audited. Implemented `demos/kiro-crew.js` and regression tests. Real `node demos/kiro-crew.js --sample` completed: run `cc51f710-b165-47b2-9dcf-95c03462531e`. First agent diagnosed memory pressure; second challenged certainty, flagged unsafe blind memory increase and recommended checking cache configuration and profiling. Both were genuine `kiro-cli chat` model calls. No cluster action executed.
