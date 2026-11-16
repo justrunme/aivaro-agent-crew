@@ -59,3 +59,7 @@ License: MIT. This is an experimental prototype, not production security softwar
 ## Kiro development evidence
 
 See [Kiro usage and credit policy](docs/KIRO_USAGE.md). Kiro CLI model execution is verified; the remaining account credit balance is not exposed by the available CLI commands. This project does not claim all source code was authored through Kiro.
+
+### Standalone audit history
+
+Mission Control now lists previous demo runs from its local SQLite database and allows selecting a run to inspect its persisted action timeline. `GET /api/runs` returns the most recent run summaries; `GET /api/run/:id` returns events for a known run. These endpoints are loopback-only and **not** a remote authentication interface. Set `AIVARO_CREW_DB_PATH` to choose an isolated local audit database. GitHub Actions runs Node 24 tests, CLI dry-run and mock demo.

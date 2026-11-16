@@ -4,14 +4,14 @@ import { createServer } from 'node:http';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { initDb, getRunEvents } from '../src/audit.js';
+import { initDb, getRunEvents, listRuns } from '../src/audit.js';
 import { runCrew } from '../src/orchestrator.js';
 import { mockClock } from '../src/mock/clock.js';
 import { parseCrew } from '../src/parser.js';
 const here=dirname(fileURLToPath(import.meta.url));
 const html=readFileSync(join(here,'index.html'));
 const crew=parseCrew(join(here,'../examples/research-crew.yaml'));
-const db=initDb();
+const db=initDb(process.env.AIVARO_CREW_DB_PATH || undefined);
 let latest=null, busy=false;
 const port=Number(process.env.AIVARO_CREW_DASHBOARD_PORT||4317);
 if(!Number.isInteger(port)||port<1024||port>65535)throw Error('Invalid port');
@@ -19,6 +19,14 @@ function json(res,status,body){res.writeHead(status,{'content-type':'application
 const server=createServer(async(req,res)=>{
   if(req.headers.host!==`127.0.0.1:${port}`&&req.headers.host!==`localhost:${port}`)return json(res,403,{error:'Host denied'});
   if(req.method==='GET'&&req.url==='/'){res.writeHead(200,{'content-type':'text/html; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff', 'content-security-policy':"default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'"});return res.end(html);}
+  if(req.method==='GET'&&req.url==='/api/runs')return json(res,200,{runs:listRuns(db)});
+  if(req.method==='GET'&&req.url?.startsWith('/api/run/')){
+    const id=req.url.slice('/api/run/'.length);
+    if(!/^[a-f0-9-]{36}$/.test(id))return json(res,400,{error:'Invalid run ID'});
+    const found=listRuns(db,100).some(r=>r.run_id===id);
+    if(!found)return json(res,404,{error:'Run not found'});
+    return json(res,200,{run_id:id,events:getRunEvents(db,id).map(e=>({event_type:e.event_type,agent_id:e.agent_id,occurred_at:e.occurred_at,payload:JSON.parse(e.payload)}))});
+  }
   if(req.method==='GET'&&req.url==='/api/state'){
     const events=latest?getRunEvents(db,latest.run_id).map(e=>({event_type:e.event_type,agent_id:e.agent_id,occurred_at:e.occurred_at,detail:(()=>{try{const p=JSON.parse(e.payload);return p.action_type||p.reason||p.payload_hash||''}catch{return ''}})()})):[];
     return json(res,200,{run_id:latest?.run_id||null,agents:latest?crew.agents:[],events});
