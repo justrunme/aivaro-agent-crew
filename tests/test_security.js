@@ -1,0 +1,15 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {hashPayload,requestApproval} from '../src/gateway.js';
+import {execute} from '../src/executor.js';
+import {initDb} from '../src/audit.js';
+import {makeActionProposal} from '../src/models.js';
+import {mockClock} from '../src/mock/clock.js';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {randomUUID} from 'node:crypto';
+const db=()=>initDb(join(tmpdir(),`crew-sec-${randomUUID()}.db`));
+const proposal=()=>makeActionProposal({run_id:'security',agent_id:'researcher',action_type:'web_search',payload:{query:'safe'},payload_hash:hashPayload({query:'safe'})});
+test('tampered agent-provided hash is rejected before approval',async()=>{const p=proposal();p.payload.query='evil';await assert.rejects(()=>requestApproval(p,{mode:'auto-approve-safe',safe_actions:['web_search']},db(),mockClock()),/hash mismatch/i)});
+test('executor rejects missing approval metadata',async()=>{const p=proposal();const r=await execute(p,{proposal_hash:p.payload_hash},db(),mockClock(),{mock:true});assert.equal(r.reason,'hash_mismatch')});
+test('executor rejects mutated proposal even when approval hash unchanged',async()=>{const p=proposal();const a={proposal_hash:p.payload_hash,approved_by:'cli:test',approved_at:'2026-01-01'};p.payload.query='evil';const r=await execute(p,a,db(),mockClock(),{mock:true});assert.equal(r.reason,'hash_mismatch')});

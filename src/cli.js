@@ -111,6 +111,7 @@ async function main() {
     process.stdout.write(`Running in mock mode — no LLM or network calls.\n`);
   }
 
+  // Mock mode does not imply permission to execute real tools.
   const db    = initDb();
   const clock = isMock ? mockClock() : liveClock();
 
