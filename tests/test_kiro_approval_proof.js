@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {initDb,getRunEvents} from '../src/audit.js';
+import {remediationProposal,proof} from '../demos/kiro-approval-proof.js';
+const db=()=>initDb(join(tmpdir(),`crew-proof-${randomUUID()}.db`));
+test('explicit human deny prevents capability creation',()=>{const d=db(),p=remediationProposal(randomUUID(),'triage','review');const r=proof(p,{db:d,approved:false});assert.equal(r.reason,'human_denied');assert.equal(getRunEvents(d,p.run_id).filter(e=>e.event_type==='action_approved').length,0);d.close()});
+test('ephemeral signed approval rejects tampering and replay',()=>{const d=db(),p=remediationProposal(randomUUID(),'triage','review');const r=proof(p,{db:d,approved:true});assert.equal(r.ok,true);assert.equal(r.replay_denied,true);assert.equal(r.tamper_denied,true);assert.equal(r.no_actions_executed,true);assert.equal(getRunEvents(d,p.run_id).filter(e=>e.event_type==='action_approved').length,1);d.close()});
+test('cannot approve executable or altered plan',()=>{const d=db(),p=remediationProposal(randomUUID(),'a','b');assert.equal(proof({...p,action_type:'shell'},{db:d,approved:true}).reason,'plan_only_policy');assert.equal(proof({...p,payload:{...p.payload,kind:'EXECUTE'}},{db:d,approved:true}).reason,'plan_only_policy');d.close()});
+test('plan binds both AI outputs to signed payload',()=>{const a=remediationProposal('r','a','b'),b=remediationProposal('r','a','c');assert.notEqual(a.payload_hash,b.payload_hash)});

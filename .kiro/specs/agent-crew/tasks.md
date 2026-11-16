@@ -263,3 +263,5 @@ Effort: 0.5 · Needs: T-17
 - [ ] Integrate the genuine model-backed crew with Mission Control UI.
 - [ ] Human-signed approval transport from an enrolled external identity.
 - [ ] Independent sandbox security review before live cluster mutations.
+- [x] Synthetic Kiro two-agent review → deterministic non-executable plan → local interactive approval → Ed25519 replay/tamper proof.
+- [ ] Replace ephemeral same-process signer with independently enrolled user device identity before describing any action as human-authorized execution.
