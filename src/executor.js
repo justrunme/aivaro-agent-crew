@@ -31,7 +31,7 @@ import { HashMismatchError } from './models.js';
 export async function execute(proposal, approval, db, clock, opts = {}) {
   // Re-verify hash before touching any tool (FR-4.2, NFR-1)
   const recomputed = hashPayload(proposal.payload);
-  if (recomputed !== approval.proposal_hash) {
+  if (!approval || !approval.approved_at || !approval.approved_by || recomputed !== proposal.payload_hash || recomputed !== approval.proposal_hash) {
     const err = new HashMismatchError(approval.proposal_hash, recomputed);
     logEvent(db, {
       run_id: proposal.run_id,

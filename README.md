@@ -189,3 +189,12 @@ not to substitute for a security review.
 ## License
 
 MIT — see `LICENSE`.
+
+## Local mission-control demo (mock only)
+
+```sh
+npm test
+npm run dashboard
+```
+
+Open `http://127.0.0.1:4317` on the same Mac and select **Run safe demo**. The UI displays three scripted agents, simulated approvals and an audit timeline. No real MCP tools are invoked. Security findings and limitations: [docs/SECURITY_REVIEW.md](docs/SECURITY_REVIEW.md).
