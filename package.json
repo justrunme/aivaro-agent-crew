@@ -1,0 +1,20 @@
+{
+  "name": "aivaro-agent-crew",
+  "version": "0.1.0-alpha",
+  "description": "Local-first multi-agent orchestration prototype — Kiroween 2026 hackathon entry. Pre-alpha. Not for production use.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "bin": {
+    "aivaro-crew": "./src/cli.js"
+  },
+  "scripts": {
+    "test": "node --test tests/test_audit.js tests/test_gateway.js tests/test_executor.js tests/test_mock_engine.js tests/test_parser.js tests/test_orchestrator.js"
+  },
+  "files": [
+    "src/",
+    "examples/"
+  ],
+  "license": "MIT"
+}
