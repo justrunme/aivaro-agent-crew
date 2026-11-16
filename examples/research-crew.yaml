@@ -1,0 +1,27 @@
+# research-crew.yaml — example crew for Aivaro Agent Crew
+# Run with: aivaro-crew run examples/research-crew.yaml --mock
+#
+# Pre-alpha / hackathon prototype. Not for production use.
+
+name: Research Crew
+goal: "Summarize the latest developments in formal verification of LLM outputs"
+
+agents:
+  - id: researcher
+    role: Web Researcher
+    tools: [web_search, fetch_url]
+    model: mock
+
+  - id: analyst
+    role: Analyst
+    tools: [read_file, write_file]
+    model: mock
+
+  - id: writer
+    role: Technical Writer
+    tools: [write_file]
+    model: mock
+
+approval:
+  mode: auto-approve-safe
+  safe_actions: [web_search, fetch_url, write_file, read_file]
