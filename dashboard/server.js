@@ -8,6 +8,7 @@ import { initDb, getRunEvents, listRuns } from '../src/audit.js';
 import { runCrew } from '../src/orchestrator.js';
 import { mockClock } from '../src/mock/clock.js';
 import { parseCrew } from '../src/parser.js';
+import { preparePlan, decidePlan } from './approval.js';
 const here=dirname(fileURLToPath(import.meta.url));
 const html=readFileSync(join(here,'index.html'));
 const crew=parseCrew(join(here,'../examples/research-crew.yaml'));
@@ -30,6 +31,14 @@ const server=createServer(async(req,res)=>{
   if(req.method==='GET'&&req.url==='/api/state'){
     const events=latest?getRunEvents(db,latest.run_id).map(e=>({event_type:e.event_type,agent_id:e.agent_id,occurred_at:e.occurred_at,detail:(()=>{try{const p=JSON.parse(e.payload);return p.action_type||p.reason||p.payload_hash||''}catch{return ''}})()})):[];
     return json(res,200,{run_id:latest?.run_id||null,agents:latest?crew.agents:[],events});
+  }
+  if(req.method==='POST'&&(req.url==='/api/plan/prepare'||req.url==='/api/plan/decide')){
+    const origin=`http://${req.headers.host}`;
+    if(req.headers.origin!==origin||!['127.0.0.1','localhost'].includes(req.headers.host.split(':')[0])||req.headers['content-type']!=='application/json'||req.headers['sec-fetch-site']==='cross-site')return json(res,403,{error:'Origin/content type denied'});
+    let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>2048)return json(res,413,{error:'Too large'});}
+    let input;try{input=JSON.parse(raw);}catch{return json(res,400,{error:'Invalid JSON'});}
+    const result=req.url==='/api/plan/prepare'?preparePlan(db,input.run_id):decidePlan(db,input);
+    return json(res,result.error||result.ok===false?400:200,result);
   }
   if(req.method==='POST'&&req.url==='/api/demo'){
     if(req.headers.origin&&req.headers.origin!==`http://127.0.0.1:${port}`&&req.headers.origin!==`http://localhost:${port}`)return json(res,403,{error:'Origin denied'});
