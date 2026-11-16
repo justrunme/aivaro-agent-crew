@@ -1,0 +1,7 @@
+{
+  "scenario": "Synthetic Kubernetes incident (NOT production)",
+  "namespace": "demo-store",
+  "workload": "checkout-api",
+  "symptoms": ["CrashLoopBackOff on checkout-api-5d9c7", "readiness 0/1", "last termination OOMKilled exit 137", "memory limit 256Mi", "memory working set peaked at 251Mi", "recent deploy increased in-process cache size"],
+  "constraints": ["Do not mutate cluster", "No kubectl or shell commands may be executed", "Prefer diagnosis and a human-approved remediation plan"]
+}
