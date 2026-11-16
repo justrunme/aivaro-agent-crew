@@ -86,3 +86,7 @@ Run `node demos/kiro-approval-proof.js --sample` in an **interactive terminal**.
 ### Kiroween Mission Control showcase
 
 `npm run dashboard` opens a redesigned local-only audit experience with agent graph, evidence timeline, real Kiro run history, and visible safety boundaries. To populate genuine model history first, run `node demos/kiro-crew.js --sample` in a separate terminal and select its run from the audit explorer. The green button deliberately triggers **mock only**, not real Kiro or signing. For a signed approval proof use the separate interactive CLI.
+
+### Interactive browser plan proof (demo only)
+
+Open Mission Control, select a completed **Kiro Two-Agent Incident Review** run, click **PREPARE REVIEW PLAN**, inspect the exact non-executable proposal, then choose **DENY** or **APPROVE PLAN ONLY**. The latter uses an ephemeral same-process Ed25519 signer and verifies replay/tamper rejection; all results appear in the audit timeline. A one-use browser decision token expires in 120 seconds. This is **not** authenticated consent, Android device signing, or authority to execute any remediation. Browser API requires a matching local `Origin`, JSON content type and valid Host. Run `node demos/kiro-crew.js --sample` to create a fresh model-backed run before opening the UI.

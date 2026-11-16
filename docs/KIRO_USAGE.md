@@ -26,3 +26,5 @@
 - 2026-11-16: Kiro CLI architecture review of combining real two-agent incident analysis with deterministic non-executable remediation plan, one-time Ed25519 signing and replay/tamper proof. Implemented `demos/kiro-approval-proof.js` with interactive fail-closed human confirmation, no live tool execution, and four tests. Kiro review used read-only workspace access; no Kiro-generated code was accepted blindly.
 
 - 2026-11-16: Kiro CLI read-only UX review of Mission Control showcase. Rebuilt the audit viewer with incident investigation flow, two-agent graph, model evidence timeline, audit statistics, and explicit signed-proof boundaries. The browser remains mock-trigger/read-only-history; genuine Kiro inference stays in CLI.
+
+- 2026-11-16: Kiro CLI reviewed the design for browser-controlled **non-executable** plan decisions. Implemented local-only `prepare`/`decide` endpoints, exact-origin enforcement, one-use short-lived decision tokens, ephemeral Ed25519 approval proof, replay/tamper audit, and interactive Mission Control controls. No browser route invokes Kiro or cluster tools. 95 automated tests plus HTTP smoke checks.
