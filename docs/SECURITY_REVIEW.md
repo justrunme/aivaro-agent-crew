@@ -19,3 +19,8 @@ The adapter connects to the existing local Aivaro service and successfully disco
 
 ## Demo safety boundary
 `npm run dashboard` starts a local mock-only UI at 127.0.0.1:4317. It cannot call MCP tools, does not execute filesystem writes and does not issue real approvals. Approval counts are simulated.
+
+## Signed capability prototype (subsequent phase)
+`src/security/capabilities.js` supports Ed25519-signed, time-limited, one-time capability claims bound to run, agent, action type and payload digest. `src/security/verified_gateway.js` verifies against a supplied trusted public key and atomically consumes the nonce in SQLite, including across process restarts. Unit tests exercise tampering, expiry, replay and trust failures.
+
+**Critical limitation:** the included `generateDemoSigner()` generates an ephemeral local test key. This is **not** the Android Keystore signing identity or an authenticated phone approval. No device pairing, key registration, attestation, approval-card transport or MCP tool invocation is implemented. Never treat a local demo signature as user consent.
