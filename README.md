@@ -82,3 +82,7 @@ Mission Control (`npm run dashboard`) can now inspect **previously completed rea
 ### Kiro → human review → signed plan proof (no cluster mutations)
 
 Run `node demos/kiro-approval-proof.js --sample` in an **interactive terminal**. Two real Kiro model calls diagnose and critique a synthetic Kubernetes incident. The program constructs a deterministic, explicitly **non-executable** remediation-review proposal bound to both model output hashes. The human may type `YES` to approve **the plan for further review**, not a cluster action. A temporary local Ed25519 key signs the exact proposal; the demo verifies the signature and proves that replay and payload substitution are rejected, with audit events. The signer and verifier run in the **same local process**, so this is a cryptographic demonstration, **not independent human identity, phone consent, or a production authorization boundary**. No Kubernetes, MCP or shell commands are executed.
+
+### Kiroween Mission Control showcase
+
+`npm run dashboard` opens a redesigned local-only audit experience with agent graph, evidence timeline, real Kiro run history, and visible safety boundaries. To populate genuine model history first, run `node demos/kiro-crew.js --sample` in a separate terminal and select its run from the audit explorer. The green button deliberately triggers **mock only**, not real Kiro or signing. For a signed approval proof use the separate interactive CLI.

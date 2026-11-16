@@ -24,3 +24,5 @@
 - 2026-11-16: Kiro CLI design review for showing real model-backed audit runs in local Mission Control without enabling browser-triggered inference. UI now derives historical agent roster from persisted audit events, labels model inference separately from mock approvals, and displays bounded summaries. This is visualization only, not an execution or consent path.
 
 - 2026-11-16: Kiro CLI architecture review of combining real two-agent incident analysis with deterministic non-executable remediation plan, one-time Ed25519 signing and replay/tamper proof. Implemented `demos/kiro-approval-proof.js` with interactive fail-closed human confirmation, no live tool execution, and four tests. Kiro review used read-only workspace access; no Kiro-generated code was accepted blindly.
+
+- 2026-11-16: Kiro CLI read-only UX review of Mission Control showcase. Rebuilt the audit viewer with incident investigation flow, two-agent graph, model evidence timeline, audit statistics, and explicit signed-proof boundaries. The browser remains mock-trigger/read-only-history; genuine Kiro inference stays in CLI.
