@@ -55,3 +55,7 @@ The initial project scaffold and `.kiro/specs/agent-crew/` documents were genera
 5. Validate all contest requirements, document Kiro-driven contributions, record a sub-three-minute demo and prepare a public release.
 
 License: MIT. This is an experimental prototype, not production security software.
+
+## Kiro development evidence
+
+See [Kiro usage and credit policy](docs/KIRO_USAGE.md). Kiro CLI model execution is verified; the remaining account credit balance is not exposed by the available CLI commands. This project does not claim all source code was authored through Kiro.
